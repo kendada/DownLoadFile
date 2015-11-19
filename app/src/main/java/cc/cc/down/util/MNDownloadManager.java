@@ -74,6 +74,11 @@ public class MNDownloadManager extends DownloadManager {
     @Override
     public void onCancelAll() {
         Log.i(tag, "---取消全部---");
+        Log.i(tag, "---取消全部---");
+        Log.i(tag, "---取消全部---");
+        Log.i(tag, "---取消全部---");
+        Log.i(tag, "---取消全部---");
+        Log.i(tag, "---取消全部---");
     }
 
     /**
