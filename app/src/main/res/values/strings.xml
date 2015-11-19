@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">DownLoadFile</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+
+    <string name="insert_card">插入卡</string>
+    <string name="down_fail">下载失败</string>
+    <string name="is_downing">正在下载</string>
+    <string name="down_sucess">下载成功</string>
+
+</resources>
