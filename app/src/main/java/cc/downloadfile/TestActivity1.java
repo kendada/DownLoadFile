@@ -39,7 +39,7 @@ public class TestActivity1 extends Activity {
 
         adapter = new TestAdapter(this, list);
         list_view.setAdapter(adapter);
-
+        //测试
     }
 
     private void getLists(){
