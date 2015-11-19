@@ -73,7 +73,7 @@ public class MNDownloadManager extends DownloadManager {
 
     @Override
     public void onCancelAll() {
-//删除本地文件//删除本地文件//删除本地文件//删除本地文件//删除本地文件//删除本地文件
+
     }
 
     /**
