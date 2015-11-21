@@ -1,4 +1,4 @@
-package cc.cc.down.util;
+package cc.http.down;
 
 import android.os.Handler;
 import android.os.Message;
@@ -140,7 +140,7 @@ public class FileDownLoader {
     }
 
     /**
-     * 获取文件大小
+     * 获取文件大小：此处可以用数据库代替保存文件原始大小
      * */
     private void getFileLenght(){
 

@@ -1,4 +1,6 @@
-package cc.cc.down.util;
+package cc.http.down;
+
+import cc.http.util.MNRuunable;
 
 /**
  * User: 山野书生(1203596603@qq.com)
@@ -7,7 +9,7 @@ package cc.cc.down.util;
  * Version 1.0
  */
 
-public class DownRuunable implements Runnable {
+public class DownRuunable extends MNRuunable {
 
     private DownloadRequest request;
 

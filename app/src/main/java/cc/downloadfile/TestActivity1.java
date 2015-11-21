@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cc.adapter.TestAdapter;
-import cc.cc.down.util.DownloadRequest;
+import cc.http.down.DownloadRequest;
 
 /**
  * User: 山野书生(1203596603@qq.com)
@@ -44,7 +44,7 @@ public class TestActivity1 extends Activity {
 
     private void getLists(){
         list = new ArrayList<>();
-        for(int i=1; i<5; i++){
+        for(int i=1; i<200; i++){
             String name = null;
             if (i<10){
                 name = "00"+i+".mp3";

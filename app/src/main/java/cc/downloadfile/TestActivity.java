@@ -3,9 +3,8 @@ package cc.downloadfile;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -14,10 +13,10 @@ import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cc.cc.down.util.DownloadListener;
-import cc.cc.down.util.DownloadManager;
-import cc.cc.down.util.DownloadRequest;
-import cc.cc.down.util.MNDownloadManager;
+import cc.http.down.DownloadListener;
+import cc.http.down.DownloadManager;
+import cc.http.down.DownloadRequest;
+import cc.http.down.MNDownloadManager;
 
 /**
  * User: 山野书生(1203596603@qq.com)
@@ -37,16 +36,10 @@ public class TestActivity extends Activity implements View.OnClickListener{
 
     private DownloadManager manager;
 
-
-    private NotificationManager notificationManager;
-    private Notification notification;
-    private PendingIntent pendingIntent, pendingIntent_stop,
-            pendingIntent_restart, pendingIntent_clear;
-    private RemoteViews contentView;
-    private String app_name = "test.apk";
-
-
     private int mProgress = 0;
+
+    NotificationManager notificationManager = null;
+    NotificationCompat.Builder mBuilder = null;
 
 
     private String tag = TestActivity.class.getSimpleName();
@@ -104,22 +97,12 @@ public class TestActivity extends Activity implements View.OnClickListener{
 
             @Override
             public void onProgress(int id, int downLoadCount, int length) {
-                bar.setProgress(downLoadCount * 100 / length);
-                text.setText("" + bar.getProgress());
-
-                if((downLoadCount * 100 / length)%20==0){
-                    // 改变通知栏
-                    contentView.setTextViewText(R.id.notificationPercent,
-                            downLoadCount * 100/ length + "%");
-                    contentView.setProgressBar(R.id.notificationProgress, 100,
-                            downLoadCount * 100/ length, false);
-
-                    notification.contentView = contentView;
-
-                    notificationManager.notify(R.layout.notification_item,
-                            notification);
+                int tempProgress = downLoadCount * 100 / length;
+                bar.setProgress(tempProgress);
+                text.setText("" + tempProgress);
+                if(tempProgress%20==0){
+                    //showNotification(downLoadCount * 100 / length);
                 }
-
             }
 
             @Override
@@ -132,28 +115,39 @@ public class TestActivity extends Activity implements View.OnClickListener{
 
     }
 
-
     /**
-     * 创建通知消息
-     * **/
-    public void createNotification() {
+     * 创建通知
+     * */
+    private void createNotification(){
+        mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setContentTitle("标题") //标题
+                .setContentText("正在更新app")  //内容
+                .setWhen(System.currentTimeMillis()) //获取系统时间
+                .setPriority(Notification.PRIORITY_DEFAULT) //优先级
+                .setOngoing(true)
+                .setAutoCancel(true) //用户点击取消
+        //        .setDefaults(Notification.DEFAULT_VIBRATE) //发送消息时添加震动，闪光等:需要权限
+        //        .setProgress(100, 0, false)
+                .setSmallIcon(R.mipmap.ic_launcher);
+        createNotificationView(); //自定义通知View
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        notification = new Notification(R.mipmap.ic_launcher, app_name
-                + getString(R.string.is_downing), System.currentTimeMillis());
-        notification.flags = Notification.FLAG_ONGOING_EVENT;
-
-        /** 自定义Notification样式 ***/
-        contentView = new RemoteViews(getPackageName(),
-                R.layout.notification_item);
-        contentView.setTextViewText(R.id.notificationTitle, app_name
-                + getString(R.string.is_downing));
-        contentView.setTextViewText(R.id.notificationPercent, "0%");
-        contentView.setProgressBar(R.id.notificationProgress, 100, 0, false);
-
-        notification.contentView = contentView;
-
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(R.layout.notification_item, notification);
+        notificationManager.notify(0, mBuilder.build());
     }
+
+    //自定义通知View
+    private void createNotificationView(){
+        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.notification_item);
+
+        mBuilder.setContent(remoteViews);
+
+    }
+
+    //更新进度条
+    private void showNotification(int progress){
+        mBuilder.setProgress(100, progress, false);
+        notificationManager.notify(0, mBuilder.build());
+    }
+
 
 }

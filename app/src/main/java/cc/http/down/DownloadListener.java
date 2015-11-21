@@ -1,4 +1,4 @@
-package cc.cc.down.util;
+package cc.http.down;
 
 /**
  * User: 山野书生(1203596603@qq.com)

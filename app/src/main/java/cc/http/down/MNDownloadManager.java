@@ -1,4 +1,4 @@
-package cc.cc.down.util;
+package cc.http.down;
 
 import android.util.Log;
 
@@ -28,7 +28,7 @@ public class MNDownloadManager extends DownloadManager {
     public void addDownloadRequest(DownloadRequest request) {
         requests.add(request); //添加到集合
         DownRuunable ruunable = new DownRuunable(request);
-        executors.submit(ruunable);
+        executorManager.addThread(ruunable);
         ruunableList.add(ruunable);
     }
 

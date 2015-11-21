@@ -1,9 +1,9 @@
-package cc.cc.down.util;
+package cc.http.down;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import cc.http.util.ExecutorManager;
 
 /**
  * User: 山野书生(1203596603@qq.com)
@@ -17,15 +17,13 @@ public abstract class DownloadManager {
     //保存路径
     public String savePath = "mn/down";
 
-    public ExecutorService executors;
+    public ExecutorManager executorManager;
 
     //下载集合
     public List<DownloadRequest> requests;
 
     public DownloadManager(){
-        if(executors==null){
-            executors = Executors.newFixedThreadPool(3);
-        }
+        executorManager = ExecutorManager.getInstance();
         if(requests==null){
             requests = new ArrayList<>();
         }

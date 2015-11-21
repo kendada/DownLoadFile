@@ -11,10 +11,10 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import cc.cc.down.util.DownloadListener;
-import cc.cc.down.util.DownloadManager;
-import cc.cc.down.util.DownloadRequest;
-import cc.cc.down.util.MNDownloadManager;
+import cc.http.down.DownloadListener;
+import cc.http.down.DownloadManager;
+import cc.http.down.DownloadRequest;
+import cc.http.down.MNDownloadManager;
 import cc.downloadfile.R;
 
 /**
