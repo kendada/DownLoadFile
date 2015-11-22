@@ -7,9 +7,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import cc.http.http.CookieParmas;
 import cc.http.http.HttpUtil;
 import cc.http.http.MNHttpListener;
-import cc.http.http.RequestParms;
+import cc.http.http.RequestParams;
 
 /**
  * User: 山野书生(1203596603@qq.com)
@@ -20,12 +21,13 @@ import cc.http.http.RequestParms;
 
 public class HttpTestActivity extends AppCompatActivity {
 
-    private Button btn, btn_calcel;
+    private Button btn, btn_userinfo, btn_calcel;
     private TextView text;
 
     private HttpUtil httpUtil;
 
-    String url = "http://zhiyue.cutt.com/api/clip/images?clipId=103140789";
+    String url = "http://snsapp.xzw.com/index.php?app=public&mod=Xzwpassport&act=doLogin";
+    String url1 = "http://snsapp.xzw.com/index.php?app=public&mod=xzwindex&act=UserInformation";
 
     private String tag = HttpTestActivity.class.getSimpleName();
 
@@ -35,12 +37,22 @@ public class HttpTestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_http_layout);
 
         httpUtil = new HttpUtil();
+        CookieParmas cookieParmas = new CookieParmas(this);
+        httpUtil.setCookieParmas(cookieParmas);
 
         btn = (Button)findViewById(R.id.btn);
+        btn_userinfo = (Button)findViewById(R.id.btn_userinfo);
         btn_calcel = (Button)findViewById(R.id.btn_calcel);
         text = (TextView)findViewById(R.id.text);
 
         btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                postData();
+            }
+        });
+
+        btn_userinfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getData();
@@ -56,9 +68,7 @@ public class HttpTestActivity extends AppCompatActivity {
     }
 
     private void getData(){
-        RequestParms parms = new RequestParms();
-
-        httpUtil.get(url, new MNHttpListener() {
+        httpUtil.get(url1, new MNHttpListener() {
             @Override
             public void onStart() {
                 Log.i(tag, "----onStart()----");
@@ -71,22 +81,56 @@ public class HttpTestActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(int code, String result) {
-                text.setText("-------"+result);
+                text.setText("-------" + result);
             }
 
             @Override
             public void onFilure(int errorCode, String errorMessage) {
-                text.setText("-------"+errorMessage);
+                text.setText("-------" + errorMessage);
             }
 
             @Override
             public void onFinish(int code) {
-                Log.i(tag, "----onFinish()----="+code);
+                Log.i(tag, "----onFinish()----=" + code);
             }
         });
 
     }
 
+    private void postData(){
+        RequestParams parms = new RequestParams();
+        parms.put("login_email", "nibabi@qq.com");
+        parms.put("login_password", "jin123");
+        parms.put("login_remember", "1");
+
+        httpUtil.post(url, parms, new MNHttpListener() {
+            @Override
+            public void onStart() {
+                Log.i(tag, "----onStart()----");
+            }
+
+            @Override
+            public void onCancel() {
+                Log.i(tag, "----onCancel()----");
+            }
+
+            @Override
+            public void onSuccess(int code, String result) {
+                text.setText("-------" + result);
+            }
+
+            @Override
+            public void onFilure(int errorCode, String errorMessage) {
+                text.setText("-------" + errorMessage);
+            }
+
+            @Override
+            public void onFinish(int code) {
+                Log.i(tag, "----onFinish()----=" + code);
+            }
+        });
+
+    }
 
 
 }

@@ -8,8 +8,15 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="访问网络"
+        android:text="登录"
         android:id="@+id/btn"
+        />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="获取用户信息"
+        android:id="@+id/btn_userinfo"
         />
 
     <Button

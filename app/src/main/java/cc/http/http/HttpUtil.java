@@ -21,6 +21,12 @@ public class HttpUtil {
 
     private Map<String, MNHttpRuunable> mnHttpRuunableMap;
 
+    private CookieParmas mCookieParmas; //设置cookie信息
+
+
+    private final static int METHOD_GET = 1;
+    private final static int METHOD_POST = 2;
+
     public HttpUtil(){
         manager = ExecutorManager.getInstance();
         mnHttpRuunableMap = new HashMap<>();
@@ -30,28 +36,30 @@ public class HttpUtil {
         get(url, null, listener);
     }
 
-    public void get(String url, RequestParms parms, HttpListener listener){
+    public void get(String url, RequestParams parms, HttpListener listener){
         doGet(url, parms, listener);
     }
 
     /**
      * 执行http get方法
      * */
-    private void doGet(String url, RequestParms parms, HttpListener listener){
-        MNHttpRuunable ruunable = new MNHttpRuunable(url, listener);
+    private void doGet(String url, RequestParams parms, HttpListener listener){
+        MNHttpRuunable ruunable = new MNHttpRuunable(METHOD_GET, url, mCookieParmas, null, listener);
         manager.addThread(ruunable);
         mnHttpRuunableMap.put(url, ruunable);
     }
 
-    public void post(){
-
+    public void post(String url, RequestParams parms, HttpListener listener){
+        doPost(url, parms, listener);
     }
 
     /**
      * 执行http post方法
      * */
-    private void doPost(String url, RequestParms parms, HttpListener listener){
-
+    private void doPost(String url, RequestParams parms, HttpListener listener){
+        MNHttpRuunable ruunable = new MNHttpRuunable(METHOD_POST, url, mCookieParmas, parms, listener);
+        manager.addThread(ruunable);
+        mnHttpRuunableMap.put(url, ruunable);
     }
 
     /**
@@ -64,7 +72,13 @@ public class HttpUtil {
         }
     }
 
+    public CookieParmas getCookieParmas(){
+        return this.mCookieParmas;
+    }
 
+    public void setCookieParmas(CookieParmas cookieParmas){
+        this.mCookieParmas = cookieParmas;
+    }
 
 
 

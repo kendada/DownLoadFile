@@ -16,15 +16,19 @@ public class MNHttpRuunable extends MNRuunable {
 
     private Handler mHandler;
     private String mUrl;
-    private HttpListener mListener;
+    private CookieParmas mCookieParmas;
+    private RequestParams mParms;
     private HttpLoader httpLoader;
+    private int mMethod; //网络请求方法
 
-    public MNHttpRuunable(String url, HttpListener listener){
+    public MNHttpRuunable(int method, String url, CookieParmas cookieParmas, RequestParams parms, HttpListener listener){
         if(listener!=null){
             mHandler = listener.getHandler();
         }
+        mMethod = method;
         mUrl = url;
-        mListener = listener;
+        mCookieParmas = cookieParmas;
+        mParms = parms;
     }
 
     @Override
@@ -32,17 +36,18 @@ public class MNHttpRuunable extends MNRuunable {
         Message msg = mHandler.obtainMessage();
         msg.what = 0;
         mHandler.sendMessage(msg);
-        httpLoader = new HttpLoader(mUrl, mHandler);
-        httpLoader.get();
+        httpLoader = new HttpLoader(mUrl, mCookieParmas, mParms, mHandler);
+        switch (mMethod){
+            case 1:
+                httpLoader.get();
+                break;
+            case 2:
+                httpLoader.post();
+                break;
+        }
     }
 
     public void onCancel(){
         httpLoader.onCancel();
     }
-
-    public MNHttpRuunable getRuunable(){
-        return this;
-    }
-
-
 }
