@@ -30,6 +30,13 @@ public class CookieParmas {
     public CookieParmas(Context context){
         mContext = context;
         cookieStringBuffer = new StringBuffer();
+        init();
+    }
+
+    /**
+     * 初始化
+     * */
+    private void init(){
         mPreferences = mContext.getSharedPreferences(COOKIE_NAME, Context.MODE_ENABLE_WRITE_AHEAD_LOGGING);
         Map<String, ?> keyMap = mPreferences.getAll();
         Set<String> keys = keyMap.keySet();
@@ -38,13 +45,15 @@ public class CookieParmas {
         } else {
             savedCookie = false;
         }
-        Log.i(tag, "---38----"+savedCookie);
-        for(String key:keys){
+        for(String key:keys){ //自动获取SharePreferences保存的键值对
             String value = mPreferences.getString(key, null);
             cookieStringBuffer.append(key+"="+value+";");
         }
     }
 
+    /**
+     * 保存Cookie信息
+     * */
     public void saveCookieItem(String key, String value){
         SharedPreferences.Editor ed = mPreferences.edit();
         ed.putString(key, value);
@@ -60,6 +69,9 @@ public class CookieParmas {
         ed.commit();
     }
 
+    /**
+     * Cookie信息是否已经保存
+     * */
     public boolean isSavedCookie() {
         return savedCookie;
     }

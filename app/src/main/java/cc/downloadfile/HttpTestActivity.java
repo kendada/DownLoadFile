@@ -29,7 +29,8 @@ public class HttpTestActivity extends AppCompatActivity {
     private HttpUtil httpUtil;
 
     String url = "http://snsapp.xzw.com/index.php?app=public&mod=Xzwpassport&act=doLogin";
-    String url1 = "http://snsapp.xzw.com/index.php?app=public&mod=xzwindex&act=UserInformation";
+   // String url1 = "http://snsapp.xzw.com/index.php";
+    String url1 = "https://baidu.com";
     String url2 = "http://snsapp.xzw.com/index.php?app=photo&mod=Xzwindex&act=upload";
 
     private String tag = HttpTestActivity.class.getSimpleName();
@@ -40,6 +41,7 @@ public class HttpTestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_http_layout);
 
         httpUtil = new HttpUtil();
+        httpUtil.setHeader("ceshi_key", "ceshi"); //测试设置头部信息
         CookieParmas cookieParmas = new CookieParmas(this);
         httpUtil.setCookieParmas(cookieParmas);
 
@@ -79,6 +81,11 @@ public class HttpTestActivity extends AppCompatActivity {
     }
 
     private void getData(){
+        RequestParams params = new RequestParams();
+        //?app=public&mod=xzwindex&act=UserInformation
+        params.put("app", "public");
+        params.put("mod", "xzwindex");
+        params.put("act", "UserInformation");
         httpUtil.get(url1, new MNHttpListener() {
             @Override
             public void onStart() {

@@ -1,5 +1,7 @@
 package cc.http.http;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,13 +25,18 @@ public class HttpUtil {
 
     private CookieParmas mCookieParmas; //设置cookie信息
 
+    private Map<String, String> mHeaderMap; //保存头部信息
 
-    private final static int METHOD_GET = 1;
-    private final static int METHOD_POST = 2;
+
+    public final static int METHOD_GET = 1;
+    public final static int METHOD_POST = 2;
+
+    private String tag = HttpUtil.class.getSimpleName();
 
     public HttpUtil(){
         manager = ExecutorManager.getInstance();
         mnHttpRuunableMap = new HashMap<>();
+        mHeaderMap = new HashMap<>();
     }
 
     public void get(String url, HttpListener listener){
@@ -37,6 +44,10 @@ public class HttpUtil {
     }
 
     public void get(String url, RequestParams parms, HttpListener listener){
+        if(parms!=null){
+            url = parms.getStringParams(url);
+            Log.i(tag, "----46---"+url);
+        }
         doGet(url, parms, listener);
     }
 
@@ -44,9 +55,16 @@ public class HttpUtil {
      * 执行http get方法
      * */
     private void doGet(String url, RequestParams parms, HttpListener listener){
-        MNHttpRuunable ruunable = new MNHttpRuunable(METHOD_GET, url, mCookieParmas, null, listener);
+        MNHttpRuunable ruunable = new MNHttpRuunable(METHOD_GET, url, mHeaderMap, mCookieParmas, null, listener);
         manager.addThread(ruunable);
         mnHttpRuunableMap.put(url, ruunable);
+    }
+
+    /**
+     * 无参post方法
+     * */
+    public void post(String url, HttpListener listener){
+        doPost(url, null, listener);
     }
 
     public void post(String url, RequestParams parms, HttpListener listener){
@@ -57,7 +75,7 @@ public class HttpUtil {
      * 执行http post方法
      * */
     private void doPost(String url, RequestParams parms, HttpListener listener){
-        MNHttpRuunable ruunable = new MNHttpRuunable(METHOD_POST, url, mCookieParmas, parms, listener);
+        MNHttpRuunable ruunable = new MNHttpRuunable(METHOD_POST, url, mHeaderMap, mCookieParmas, parms, listener);
         manager.addThread(ruunable);
         mnHttpRuunableMap.put(url, ruunable);
     }
@@ -70,6 +88,20 @@ public class HttpUtil {
         if(ruunable!=null){
             ruunable.onCancel();
         }
+    }
+
+    /**
+     * 设置头部信息
+     * */
+    public void setHeader(String key, String value){
+        mHeaderMap.put(key, value);
+    }
+
+    /**
+     * 清除头部信息
+     * */
+    public void clearHeader(){
+        mHeaderMap.clear();
     }
 
     public CookieParmas getCookieParmas(){

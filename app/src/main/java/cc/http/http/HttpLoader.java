@@ -16,11 +16,19 @@ import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * User: 山野书生(1203596603@qq.com)
@@ -49,13 +57,15 @@ public class HttpLoader {
     //Cookie信息
     private CookieParmas mCookieParmas;
 
+    private Map<String, String> mHearderMap;
     private ConcurrentHashMap<String, String> urlParms;
     private ConcurrentHashMap<String, File> fileParms;
 
     private String tag = HttpLoader.class.getSimpleName();
 
-    public HttpLoader(String url, CookieParmas cookieParmas, RequestParams requestParams, Handler handler){
+    public HttpLoader(String url, Map<String, String> hearderMap, CookieParmas cookieParmas, RequestParams requestParams, Handler handler){
         mUrl = url;
+        mHearderMap = hearderMap;
         mCookieParmas = cookieParmas;
         mHandler = handler;
         mRequestParams = requestParams;
@@ -65,14 +75,42 @@ public class HttpLoader {
         }
     }
 
-    public void get(){ //判断是Http协议还是Https协议
-        doGet();
+    public void get(){
+        try {
+            //判断是Http协议还是Https协议
+            if(mUrl.indexOf("https")!=-1){
+                //https协议
+                doGet(getHttpsURLConnection("GET"));
+            } else {
+                //http协议
+                doGet(getHttpURLConnection("GET"));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
-    private void doGet(){
+    public void post(){
+        try {
+            //判断是Http协议还是Https协议
+            if(mUrl.indexOf("https")!=-1){
+                //https协议
+                doPost(getHttpsURLConnection("POST"));
+            } else {
+                //http协议
+                doPost(getHttpURLConnection("POST"));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 具体执行get操作
+     * */
+    private void doGet(HttpURLConnection conn){
         int responseCode = -1000;
         try{
-            HttpURLConnection conn = getHttpURLConnection("GET");
             conn.connect();
             responseCode = conn.getResponseCode();
             if(responseCode == HttpURLConnection.HTTP_OK){
@@ -117,19 +155,14 @@ public class HttpLoader {
 
     }
 
-    public void post(){ //判断是Http协议还是Https协议
-        doPost();
-    }
-
     /**
      * 具体执行post请求
      * */
-    private void doPost() {
+    private void doPost(HttpURLConnection conn) {
         CookieManager cookieManager = new CookieManager();
         CookieHandler.setDefault(cookieManager);
         int responseCode = -1000;
         try {
-            HttpURLConnection conn = getHttpURLConnection("POST");
             conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
             conn.connect();
 
@@ -175,7 +208,7 @@ public class HttpLoader {
             Log.i(tag, "----173----\r\n" + params);
 
             responseCode = conn.getResponseCode();
-            if(!mCookieParmas.isSavedCookie()){ //是否已经保存了Cookie信息
+            if(mCookieParmas!=null && !mCookieParmas.isSavedCookie()){ //是否已经保存了Cookie信息
                 CookieStore cookieStore = cookieManager.getCookieStore();
                 List<HttpCookie> cookies = cookieStore.getCookies();
                 for(HttpCookie cookie:cookies){
@@ -232,10 +265,18 @@ public class HttpLoader {
         connection.setRequestProperty("Charsert", "UTF-8");
         connection.setConnectTimeout(10 * 1000);
         connection.setRequestProperty("Connection", "keep-live");
+        if(mHearderMap!=null){
+            Set<String> keys = mHearderMap.keySet();
+            for(String key:keys){ //设置头部信息
+                String value = mHearderMap.get(key);
+                Log.i(tag, key+"=="+value);
+                connection.setRequestProperty(key, value);
+            }
+        }
         connection.setDoInput(true); // 允许输入
         connection.setDoOutput(true); // 允许输出
         connection.setUseCaches(false); ///不允许使用缓存
-        if(mCookieParmas.isSavedCookie()) { //判断Cookie是否为空
+        if(mCookieParmas!=null && mCookieParmas.isSavedCookie()) { //判断Cookie是否为空
             connection.setRequestProperty("Cookie", mCookieParmas.getCookie());
         }
 
@@ -251,10 +292,57 @@ public class HttpLoader {
         //HttpsURLConnection设置
         connection.setRequestMethod(method);
         connection.setRequestProperty("Charsert", "UTF-8");
-        connection.setConnectTimeout(10*1000);
-        
+        connection.setConnectTimeout(10 * 1000);
+        if(mHearderMap!=null){
+            Set<String> keys = mHearderMap.keySet();
+            for(String key:keys){ //设置头部信息
+                String value = mHearderMap.get(key);
+                connection.setRequestProperty(key, value);
+            }
+        }
+        //创建SSL
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, new TrustManager[]{new MnTrustManager()}, null);
+        HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+        HttpsURLConnection.setDefaultHostnameVerifier(new MnHostnameVerifier());
+
+        connection.setSSLSocketFactory(sslContext.getSocketFactory());
+
         return connection;
     }
+
+    /**
+     * https 忽略所有证书
+     * */
+    private class MnHostnameVerifier implements HostnameVerifier{
+
+        @Override
+        public boolean verify(String s, SSLSession sslSession) {
+            return true;
+        }
+    }
+
+    /**
+     * https 忽略所有证书
+     * */
+    private class MnTrustManager implements X509TrustManager{
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+    }
+
 
     /**
      * 取消

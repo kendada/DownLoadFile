@@ -36,7 +36,7 @@ public abstract class HttpListener {
      * */
     public abstract void onFinish(int code);
 
-
+    //更新UI
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
