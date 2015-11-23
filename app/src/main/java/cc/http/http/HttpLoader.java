@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * User: 山野书生(1203596603@qq.com)
  * Date: 2015-11-20
@@ -153,8 +155,9 @@ public class HttpLoader {
                     sb.append("-----");
                     sb.append(BOUNDARY);
                     sb.append("\r\n");
-                    sb.append("Content-Disposition: form-data=\"Filedata[]\"; filename=\"" + file.getName() + "\"\r\n");
-                    sb.append("Content-Type:image/pjpeg\r\n\r\n");
+                    sb.append("Content-Disposition: form-data; name=\""+key+"\"; filename=\"" + file.getName() + "\"\r\n");
+                    sb.append("Content-Type: application/octet-stream\r\n\r\n");
+                    Log.i(tag, "---160---" + sb.toString());
                     out.write(sb.toString().getBytes());
                     DataInputStream in = new DataInputStream(new FileInputStream(file));
                     int len = 0;
@@ -169,7 +172,7 @@ public class HttpLoader {
             out.flush();
             out.close();
 
-            Log.i(tag, "----171----\r\n" + params);
+            Log.i(tag, "----173----\r\n" + params);
 
             responseCode = conn.getResponseCode();
             if(!mCookieParmas.isSavedCookie()){ //是否已经保存了Cookie信息
@@ -218,18 +221,38 @@ public class HttpLoader {
 
     }
 
+    /**
+     * Http请求
+     * */
     private HttpURLConnection getHttpURLConnection(String method) throws Exception{
         URL url = new URL(mUrl);
         HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-        //HttpURLConnection各种设置
+        //HttpURLConnection设置
         connection.setRequestMethod(method);
         connection.setRequestProperty("Charsert", "UTF-8");
         connection.setConnectTimeout(10 * 1000);
         connection.setRequestProperty("Connection", "keep-live");
-        if(mCookieParmas.isSavedCookie()) {
+        connection.setDoInput(true); // 允许输入
+        connection.setDoOutput(true); // 允许输出
+        connection.setUseCaches(false); ///不允许使用缓存
+        if(mCookieParmas.isSavedCookie()) { //判断Cookie是否为空
             connection.setRequestProperty("Cookie", mCookieParmas.getCookie());
         }
 
+        return connection;
+    }
+
+    /**
+     * Https请求
+     * */
+    private HttpsURLConnection getHttpsURLConnection(String method) throws Exception{
+        URL url = new URL(mUrl);
+        HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+        //HttpsURLConnection设置
+        connection.setRequestMethod(method);
+        connection.setRequestProperty("Charsert", "UTF-8");
+        connection.setConnectTimeout(10*1000);
+        
         return connection;
     }
 
